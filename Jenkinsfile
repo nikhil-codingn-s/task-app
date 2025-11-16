@@ -17,24 +17,32 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                sh '''
+                    export PATH=$PATH:/usr/bin:/usr/local/bin
+                    docker --version
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pip install -r app/requirements.txt'
-                sh 'pytest -q app/tests || true'
+                sh '''
+                    export PATH=$PATH:/usr/bin:/usr/local/bin
+                    pip install -r app/requirements.txt
+                    pytest -q app/tests || true
+                '''
             }
         }
 
         stage('Push Image to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh """
+                    sh '''
+                        export PATH=$PATH:/usr/bin:/usr/local/bin
                         echo $PASS | docker login -u $USER --password-stdin
                         docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                    """
+                    '''
                 }
             }
         }
