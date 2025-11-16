@@ -4,7 +4,8 @@ pipeline {
     environment {
         IMAGE_NAME = "nikhil4101/task-app"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_CREDENTIALS = 'dockerhub'
+        DOCKER = "/usr/bin/docker"
+        DOCKER_CREDENTIALS = "dockerhub"
     }
 
     stages {
@@ -17,33 +18,39 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh(script: '''
-                    echo "Using docker at /usr/bin/docker"
-                    /usr/bin/docker --version
-                    /usr/bin/docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                ''', shell: '/bin/bash')
+                sh '''
+                    /bin/bash -c "
+                        ${DOCKER} --version
+                        ${DOCKER} build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    "
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh(script: '''
-                    pip install -r app/requirements.txt
-                    pytest -q app/tests || true
-                ''', shell: '/bin/bash')
+                sh '''
+                    /bin/bash -c "
+                        pip install -r app/requirements.txt
+                        pytest -q app/tests || true
+                    "
+                '''
             }
         }
 
         stage('Push Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh(script: '''
-                        echo $PASS | /usr/bin/docker login -u $USER --password-stdin
-                        /usr/bin/docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                    ''', shell: '/bin/bash')
+                    sh '''
+                        /bin/bash -c "
+                            echo $PASS | ${DOCKER} login -u $USER --password-stdin
+                            ${DOCKER} push ${IMAGE_NAME}:${IMAGE_TAG}
+                        "
+                    '''
                 }
             }
         }
+
     }
 
     post {
@@ -52,3 +59,4 @@ pipeline {
         }
     }
 }
+
