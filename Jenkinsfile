@@ -17,39 +17,31 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                    export PATH=$PATH:/usr/bin:/usr/local/bin
-                    docker --version
-                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                '''
+                sh(script: '''
+                    echo "Using docker at /usr/bin/docker"
+                    /usr/bin/docker --version
+                    /usr/bin/docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                ''', shell: '/bin/bash')
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    export PATH=$PATH:/usr/bin:/usr/local/bin
+                sh(script: '''
                     pip install -r app/requirements.txt
                     pytest -q app/tests || true
-                '''
+                ''', shell: '/bin/bash')
             }
         }
 
-        stage('Push Image to Docker Hub') {
+        stage('Push Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh '''
-                        export PATH=$PATH:/usr/bin:/usr/local/bin
-                        echo $PASS | docker login -u $USER --password-stdin
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                    '''
+                    sh(script: '''
+                        echo $PASS | /usr/bin/docker login -u $USER --password-stdin
+                        /usr/bin/docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    ''', shell: '/bin/bash')
                 }
-            }
-        }
-
-        stage('Deploy (Coming Soon)') {
-            steps {
-                echo "Kubernetes deployment step will be added later"
             }
         }
     }
@@ -60,4 +52,3 @@ pipeline {
         }
     }
 }
-
