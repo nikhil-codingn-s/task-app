@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-name: task-app-svc
+  name: task-app-svc
+  namespace: task-app
 spec:
-type: ClusterIP
-selector:
-app: task-app
-ports:
-- port: 80
-targetPort: 5000
-protocol: TCP
+  type: NodePort
+  selector:
+    app: task-app
+  ports:
+  - port: 5000
+    targetPort: 5000
+    nodePort: 30080
