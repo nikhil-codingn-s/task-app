@@ -1,102 +1,80 @@
-task-app-devops
+🚀 Task Manager App – CI/CD with Jenkins, Docker & Kubernetes
 
-A demo Flask Task Management app with a full DevOps pipeline (Jenkins → Docker → Docker Hub → Kubernetes).
-This repo contains the application, Dockerfile, Jenkins pipeline, and Kubernetes manifests to build, push, and deploy the app automatically.
+A fully automated CI/CD DevOps project integrating:
 
-Table of contents
+1.Flask Python backend
 
-1.Overview
+2.Docker image build & push (Docker Hub)
 
-2.Architecture
+3.Jenkins CI/CD Pipeline
 
-3.Features
+4.Kubernetes deployment (Minikube)
 
-4.Tech stack
+5.NodePort service exposure
 
-5.Prerequisites
+6.WSL → Windows HTTP forwarding
 
-6.Local run (dev)
+🏗 Architecture
+ 
+Developer → GitHub → Jenkins → Docker Build → Docker Hub → Deploy to K8s → Minikube → User
 
-7.Build & push (manual)
+⚙️ Technologies Used
 
-8.Jenkins CI/CD (pipeline summary)
+1.Python + Flask
 
-9.Kubernetes deployment (Minikube)
+2.Docker / Docker Hub
 
-10.Files & repo structure
+3.Jenkins Pipeline
 
-11.Troubleshooting
+4.Minikube + kubectl
 
-12.Next steps / improvements
+5.WSL2 (Ubuntu 24.04)
 
-13.License
+6.Windows PortProxy Forwarding
 
-Overview
+📦 Docker Commands
+Build:
+docker build -t nikhil4101/task-app:latest .
+Run:
+docker run -p 5000:5000 nikhil4101/task-app:latest
+Push:
+docker push nikhil4101/task-app:latest
 
-task-app is a simple Flask-based REST app (task list) used to demonstrate a complete CI/CD pipeline:
+🔁 Jenkins CI/CD Pipeline
 
-1.Build and test with Jenkins
+The Jenkinsfile:
 
-2.Dockerize and push to Docker Hub
+1.Checks out code
 
-3.Deploy to Kubernetes (Minikube) and expose via NodePort/Ingress
+2.Builds Docker image
 
-This project is meant for learning and for inclusion in your portfolio as a DevOps sample.
+3.Pushes to Docker Hub
 
-Architecture
-flowchart LR
-  Dev[NIKHIL TN]
-  GH[https://github.com/nikhil-codingn-s/task-app]
-  Jenkins[Jenkins (CI/CD)]
-  DockerLocal[Docker Engine]
-  DockerHub[Docker Hub registry]
-  Minikube[Minikube Kubernetes]
-  Browser[Browser]
+4.Deploys to Kubernetes (coming soon)
 
-  Dev -->|push| GH
-  GH -->|webhook / poll| Jenkins
-  Jenkins -->|build & test| DockerLocal
-  DockerLocal -->|push image| DockerHub
-  Jenkins -->|kubectl set-image| Minikube
-  Minikube --> Browser
+☸ Kubernetes Deployment
+Apply deployment & service:
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
 
-Features
+Check pod:
+kubectl get pods -n task-app
 
-1.Flask REST API (GET /tasks)
+Expose service:
+minikube ip
 
-2.Dockerized app with multi-stage friendly Dockerfile
+App URL:
+http://<minikube-ip>:30080
 
-3.Jenkins Pipeline (Declarative Jenkinsfile) to build, test, push, and deploy
+💻 Local Dev (WSL → Windows)
+Forward port:
+netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=5000 connectaddress=172.x.x.x connectport=5000
+Test:
+http://localhost:5000
 
-3.Kubernetes manifests (Deployment + Service)
+💼 Author
 
-4.Minikube-ready for local testing
+Nikhil T N
+DevOps Engineer (Fresher)
+GitHub: https://github.com/nikhil-codingn-s
 
-Tech Stack
-
-1.Python (Flask)
-
-2.Docker
-
-3.Jenkins (Pipeline)
-
-4.Kubernetes (Minikube)
-
-5.GitHub
-
-6.Docker Hub
-
-Prerequisites (local)
-
-1.Git
-
-2.Docker (running)
-
-3.Jenkins (optional locally; we used Jenkins in Docker)
-
-4.kubectl
-
-5.minikube
-
-
-Docker Hub
